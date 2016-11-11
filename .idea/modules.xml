@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/CImpress.iml" filepath="$PROJECT_DIR$/CImpress.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/cimpress.iml" filepath="$PROJECT_DIR$/cimpress.iml" />
     </modules>
   </component>
 </project>
