@@ -35,9 +35,12 @@ public class MainActivity extends AppCompatActivity implements OptionsFragment.O
         setupViewPager(viewPager);
 
         tabLayout = (TabLayout) findViewById(R.id.tabs);
-        tabLayout.addTab(tabLayout.newTab().setText("Video"));
-        tabLayout.addTab(tabLayout.newTab().setText("Stream"));
-        tabLayout.addTab(tabLayout.newTab().setText("Options"));
+        //tabLayout.addTab(tabLayout.newTab().setText("Video"));
+        //tabLayout.addTab(tabLayout.newTab().setText("Stream"));
+        //tabLayout.addTab(tabLayout.newTab().setText("Options"));
+
+        tabLayout.setupWithViewPager(viewPager);
+        tabLayout.setOnTabSelectedListener(onTabSelectedListener(viewPager));
 
         /*RelativeLayout layout = (RelativeLayout) findViewById(R.id.activity_main);
         Button button = new Button(this);
@@ -91,7 +94,7 @@ public class MainActivity extends AppCompatActivity implements OptionsFragment.O
 
     @Override
     public void onFragmentInteraction(Uri uri) {
-
+        // Empty until necessary
     }
 
     class ViewPagerAdapter extends FragmentPagerAdapter {
