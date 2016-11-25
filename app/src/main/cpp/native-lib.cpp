@@ -3,7 +3,7 @@
 
 extern "C"
 jstring
-Java_com_cimpress_pcs2057_cimpress_MainActivity_stringFromJNI(
+Java_com_cimpress_pcs2057_cimpress_activity_MainActivity_stringFromJNI(
         JNIEnv* env,
         jobject /* this */) {
     std::string hello = "Hello from C++";
