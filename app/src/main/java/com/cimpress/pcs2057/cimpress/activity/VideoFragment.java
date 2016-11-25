@@ -1,18 +1,26 @@
 package com.cimpress.pcs2057.cimpress.activity;
 
 import android.content.Context;
+import android.content.Intent;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.DocumentsContract;
+import android.provider.MediaStore;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.CursorLoader;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.FrameLayout;
-import android.widget.RelativeLayout;
+import android.widget.TextView;
 
 import com.cimpress.pcs2057.cimpress.R;
+
+import static android.app.Activity.RESULT_OK;
 
 /**
  * A simple {@link Fragment} subclass.
@@ -27,12 +35,14 @@ public class VideoFragment extends Fragment {
     // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
     private static final String ARG_PARAM1 = "param1";
     private static final String ARG_PARAM2 = "param2";
+    private static final int REQUEST_TAKE_GALLERY_VIDEO = 200;
 
     // TODO: Rename and change types of parameters
     private String mParam1;
     private String mParam2;
 
     private OnFragmentInteractionListener mListener;
+    private String selectedImagePath;
 
     public VideoFragment() {
         // Required empty public constructor
@@ -75,14 +85,86 @@ public class VideoFragment extends Fragment {
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(metrics);
 
         FrameLayout layout = (FrameLayout) rootView.findViewById(R.id.video_frame_layout);
-        Button button = new Button(getActivity());
-        button.setText("Select Video");
-        button.setLayoutParams(new FrameLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT, ViewGroup.LayoutParams.WRAP_CONTENT));
-        button.setLeft(500);
-        button.setTop(200);
-        layout.addView(button);
+
+        Button button = (Button) rootView.findViewById(R.id.btn_escolher_video);
+        button.setOnClickListener(new Button.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent();
+                intent.setType("video/*");
+                intent.setAction(Intent.ACTION_GET_CONTENT);
+                startActivityForResult(Intent.createChooser(intent,"Select Video"), REQUEST_TAKE_GALLERY_VIDEO);
+            }
+        });
 
         return rootView;
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            if (requestCode == REQUEST_TAKE_GALLERY_VIDEO) {
+                Uri selectedImageUri = data.getData();
+                Log.v("VIDEO_URI", selectedImageUri.toString());
+
+                // MEDIA GALLERY
+                selectedImagePath = getPath(getActivity(), selectedImageUri);
+                TextView tv = (TextView) getActivity().findViewById(R.id.video_path);
+                tv.setText("Vídeo: " + selectedImagePath);
+            }
+        }
+    }
+
+    // UPDATED!
+    public String getVideoPath(Context context, Uri uri) {
+        String[] projection = { MediaStore.Images.Media.DATA };
+        Cursor cursor = null;
+
+        try {
+            /*CursorLoader cursorLoader = new CursorLoader(context, uri, projection, null, null, null);
+            cursor = cursorLoader.loadInBackground();*/
+            cursor = context.getContentResolver().query(uri, projection, null, null, null);
+
+            // HERE YOU WILL GET A NULLPOINTER IF CURSOR IS NULL
+            // THIS CAN BE, IF YOU USED OI FILE MANAGER FOR PICKING THE MEDIA
+            int column_index = cursor
+                    .getColumnIndexOrThrow(MediaStore.Images.Media.DATA);
+            cursor.moveToFirst();
+
+            String filepath = cursor.getString(column_index);
+            Log.v("FILE_PATH", filepath);
+            return filepath;
+        } finally {
+            cursor.close();
+        }
+    }
+
+    public String getPath(Context context, Uri uri) {
+        String wholeID = DocumentsContract.getDocumentId(uri);
+
+        // Split at colon, use second item in the array
+        String id = wholeID.split(":")[1];
+
+        String[] column = { MediaStore.Images.Media.DATA };
+
+        // where id is equal to
+        String sel = MediaStore.Images.Media._ID + "=?";
+
+        Cursor cursor = context.getContentResolver().
+                query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        column, sel, new String[]{ id }, null);
+
+        String filePath = "";
+
+        int columnIndex = cursor.getColumnIndex(column[0]);
+
+        if (cursor.moveToFirst()) {
+            filePath = cursor.getString(columnIndex);
+        }
+        cursor.close();
+
+        Log.v("FILE_PATH", filePath);
+        return filePath;
     }
 
     // TODO: Rename method, update argument and hook method into UI event
